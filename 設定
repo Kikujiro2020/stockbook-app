@@ -1,0 +1,99 @@
+設定手順
+☑1.Viteでプロジェクト作成
+    npm init vite@latest
+    ※@latestで最新版（2022/01/01現在はver2.7.2)
+    ※Vite は Node.js >=12.2.0 のバージョンが必要
+    ※Yarnの場合⇒  yarn create vite
+☑2.Vue Routerをプロジェクトに追加
+    npm install vue-router@4
+    ※versionを間違えないこと(Vue3に対応するのはv4.x)   
+☑3.Vue Routerの設定用ファイルrouter.jsの作成
+    設定をエクスポートして外部から利用する
+    ※動作チェック用のコンポーネント作成（後々作りなおすので後でも可）
+☑4.main.jsの書き換え
+    import router from './router'で3.で作成した設定のインポート
+    app.use(router)でVue Routerの追加
+☑5.App.vueの書き換え
+    -遷移用リンクの作成と、コンポーネント反映場所の設置
+    <router-link to="/">HelloWorld</router-link>
+    <router-link to="/about">About</router-link>
+    <router-view></router-view>
+☑6.Element⁺をプロジェクトに追加
+    npm install element-plus --save
+    ※Yarnの場合⇒yarn add element-plus
+☑7.main.jsの書き換え
+    import ElementPlus from 'element-plus'
+    import 'element-plus/dist/index.css'
+    app.use(ElementPlus)
+    ※公式ドキュメントのQuick Startを参照
+☑8.全体のレイアウトを選んでApp.vueに組み込む
+    component
+    layout container 
+        header  
+        sidebar 
+        main
+☑9.レイアウトの調整
+    アカウント新規作成フォームの作成
+☑10.Firebaseのプロジェクトの作成とアプリの登録
+    Firebase Consoleにて作成
+    npm install firebase
+    Firebase を初期化して、Firebase アプリ オブジェクトを作成
+        Firebase.jsを作成（コンフィグ等登録）
+        ※Firebase関連はファイル内に処理を書き、Exportする
+☑11.Firebase Authenticationの追加
+    Firebase Consoleにてプロバイダなど設定
+    
+☑12.Authenticationの新規ユーザーアカウント登録処理
+    Firebase.jsに追記
+    createUserWithEmailAndPassword()
+    ※公式ドキュメントより
+    処理を関数にしてExportして外部（新規登録用コンポーネント）から呼び出し
+    Register.vue作成
+    新規登録フォーム-新規登録用関数を呼び出し、引き数にフォーム内容を
+☑13.Login・Logoutの実装
+    Firebase.jsに追記
+    ログイン用の処理
+    signInWithEmailAndPassword()を使用
+    ログアウト用の処理
+    signOut()
+    ※公式ドキュメントより
+    いずれもExportして外部（LoginコンポーネントとLogoutはメニューボタンに直接）から呼び出し
+    Login.vue作成（ほぼRegister.vueをコピー）
+    ログインフォーム-Login用関数を呼び出し、引数にフォーム内容を
+    ログアウトは、メニューバーにボタンを置き@clickにて直接呼出し
+☑14.Login後の処理
+    ルーティング時に認証が必要なページを判断して、未ログイン時は/loginへ遷移する処理を
+        1.router.jsのルートオブジェクトにmetaデータを追記
+        2.metaデータにはmeta: { requiresAuth: true }でコンポーネントに認証が必要であることを明記
+        3.VueRouterのNavigationGuardを使ってルーティング時にコンポーネントのmetaデータを読み取り
+
+        4.ログインしているかどうかの状態取得 onAuthStateChanged()を利用
+            ※公式ドキュメントより
+☑15.データベースの作成 ユーザーは所属に応じて在庫管理ができる
+	アプリケーションの機能
+    1.ユーザー登録をして使用する
+    2.ユーザーは所属に応じて在庫管理ができる
+	    -在庫数確認
+	    -在庫増減
+	    -不足備品の発注
+
+
+    Firestoreでデータベースを作成
+
+    構成
+    //usersはアカウント作成時に登録 -処理を追加
+    users:
+        documentID:userID
+        username:String
+        createdAt:Date //timestamp
+        belonging_id:String
+    belonging:
+        documentID:auto
+        officename
+
+        itemslist:
+            documentID:auto
+            itemname:String
+            stockquantity:int
+            createdAt:Date
+

@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAuthenticated(){
+      return request.auth !=null;
+    }
+    function isUserAuthenticated(userID){
+      return isAuthenticated() && userID == request.auth.uid
+    }
+
+    match /users/{userID} {
+      allow create:if isUserAuthenticated(userID)
+      && (!('username' in request.resource.data) || (request.resource.data.username is string && request.resource.data.username.size()<=10))
+      && request.resource.data.created_at - duration.value(5,'s') <= request.time //created_at の5秒後　が　requestの時間以下
+      && request.resource.data.belonging is string;
+      allow update: if isUserAuthenticated(userID)
+      && (!('username' in request.resource.data) || (request.resource.data.username is string && request.resource.data.username.size()<=10))
+      && request.resource.data.updated_at - duration.value(5,'s') <= request.time //created_at の5秒後　が　requestの時間以下
+      && request.resource.data.belonging is string;
+      allow get: if isUserAuthenticated(userID);
+    }
+
+
+    //match /{document=**} {
+    //  allow read, write: if
+    //      request.time < timestamp.date(2022, 3, 2);
+    
+  }
+}
